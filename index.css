@@ -1,0 +1,21 @@
+@keyframes fontbulger {
+  0%, 100% {
+    font-size: var(--size);
+  }
+  50% {
+    font-size: 50px;
+  }
+  100% {
+    color: #cd2ec1;
+    font-size: var(--size);
+
+  }
+}
+
+#box {
+   animation: fontbulger 10s infinite;
+}
+
+body {
+  margin: 100px 150px;
+}
