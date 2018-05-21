@@ -1,33 +1,85 @@
 <html>
   <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="./index.js"></script>
-    <script src="https://download.affectiva.com/js/3.1/affdex.js" type="text/javascript"> </script>
-    <link rel="stylesheet" type="text/css" href="./index.css">
-
-      <!-- <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'> -->
-
-      <title>SmileBig</title>
-  </head>
+    <!-- AFFDEX SDK BETA URL-->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+      <script type="text/javascript" src="https://download.affectiva.com/js/3.1/affdex.js"></script>
+      <script type="text/javascript" src="http://localhost:8080/affective.js"></script>
+      <link href='http://fonts.googleapis.com/css?family=Cinzel' rel='stylesheet' type='text/css'>  </head>
   <body>
-   <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-8" id="affdex_elements"></div>
-      <div class="col-md-4">
-        <div>
-          <div id="results" style="word-wrap:break-word;"></div>
-        </div>
-
-        <div id="logs"></div>
-      </div>
-    </div>
     <div>
-      <button id="start" onclick="start()">Start</button>
+      Smile BIG.
     </div>
-  </div>
+    <div id="affdex_elements"> </div>
+    <script>
+      var divRoot = document.getElementById("affdex_elements");
+      var width = 640;
+      var height = 480;
+      var processFPS = 5;
+      //Construct a CameraDetector and specify the image width / height and processing framerate.
+      var detector = new affdex.CameraDetector(divRoot, width, height, processFPS);
 
-    <div>Happy looks <span id=box>great </span>on you.</div>
+      //Enable detection of all Expressions, Emotions and Emojis classifiers.
+      detector.detectAllEmotions();
+      detector.detectAllExpressions();
+      detector.detectAllEmojis();
+      detector.detectAllAppearance();
 
+      //Add a callback to notify when the detector is initialized and ready for runing.
+      detector.addEventListener("onInitializeSuccess", function() {
+        console.log("Initialized. Ready for analysis!");
+      });
+
+      //function executes when Start button is pushed.
+      function onStart() {
+        if (detector && !detector.isRunning) {
+          detector.start();
+        }
+      }
+
+      //function executes when the Stop button is pushed.
+      function onStop() {
+        if(detector && detector.isRunning) {
+          detector.stop();
+
+          resultsDiv = document.getElementById("results");
+          resultsDiv.innerHTML = "";
+        }
+      };
+
+      //function executes when the Reset button is pushed.
+      function onReset() {
+        if(detector && detector.isRunning) {
+          detector.reset();
+
+          resultsDiv = document.getElementById("results");
+          resultsDiv.innerHTML = "";
+        }
+      };
+
+      //Add a callback to notify when camera access is allowed
+      detector.addEventListener("onWebcamConnectSuccess", function() {
+        console.log("Webcam allowed");
+      });
+
+      //Add a callback to notify when camera access is denied
+      detector.addEventListener("onWebcamConnectFailure", function() {
+        console.log("Webcam denied");
+      });
+
+
+      detector.addEventListener("onImageResultsSuccess", function(faces, image, timestamp) {
+        resultsDiv = document.getElementById("results");
+
+        if (faces.length > 0) { // if a face was found
+          resultsDiv.innerHTML = resultsDiv.innerHTML + "Smile Strength: " + JSON.stringify(faces[0].expressions.smile) + "<br />";
+          resultsDiv.innerHTML = resultsDiv.innerHTML + " Dominant Emoji: " + faces[0].emojis.dominantEmoji;
+        }
+      });
+    </script>
+    <button id="start" onclick="onStart()">Start</button>
+    <button id="stop" onclick="onStop()">Stop</button>
+    <div id="results"></div>
   </body>
 </html>
-<!-- // document.querySelector('div').style.setProperty('--size', 300); -->
